@@ -138,7 +138,9 @@
     [non-val
              (display "None")
              (newline)]))
-    
+
+(define (value-of-evaluate-statemenet path)
+  (run (call-with-input-file path (lambda (in) (port->string in)))))
   
 
 
