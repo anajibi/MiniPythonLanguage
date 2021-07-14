@@ -12,7 +12,6 @@
   (non-val)
   )
 
-
 (define-datatype proc proc?
   (procedure
    (id identifier?)
@@ -36,8 +35,10 @@
   )
 
 (define-datatype compound-statement c-statement?
-  (function-def-stement
-   (function proc?))
+  (function-def-statement
+   (id identifier?)
+   (params list?)
+   (body list?))
   (if-statement
    (condition exp?)
    (body list?)
@@ -155,3 +156,38 @@
   (list-atom
    (x list?))
   )
+
+(define (report-unbound-var) (display "unbound variable"))
+
+(define (empty-environment) (list))
+
+(define (extend-environment var ref env) (cons (list var ref) env))
+
+(define (apply-environment var env)
+  (if (null? env)
+      (report-unbound-var)
+      (if (eqv? var (first (first env)))
+          (second (first env))
+          (apply-environment var (rest env))
+          )
+      )
+  )
+(define the-store (list))
+
+(define (refrence? v) (integer? v))
+
+(define (newref val)
+  (let ((next-ref (length the-store)))
+    (set! the-store (cons val the-store))
+    next-ref)
+  )
+
+(define (deref ref)
+  (list-ref the-store ref))
+
+(define (setref! ref new-val)
+  (set! the-store (list-set the-store ref new-val))
+  )
+
+(provide (all-defined-out))
+
