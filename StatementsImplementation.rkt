@@ -1,6 +1,5 @@
 #lang racket
-
-
+(require (lib "eopl.ss" "eopl"))
 
 
 (define (value-of-program program)
@@ -48,9 +47,82 @@
     (if-statement (condition body else-body)
                   (value-of-if-statement condition body else-body env))
     (for-statement (id iterable body)
-                   (value-of-for-statement id iterable body env))
+                   (begin
+                     (value-of-for-statement id iterable body env)
+                     env)
+                   )
     )
   )
+
+(define (value-of-assignment-statement id right-hand env)
+  (let ((new-ref (newref (thunk right-hand))))
+    (extend-environment id new-ref env)
+    )
+  )
+(define (value-of-return-statement body env)
+  (if (null? body)
+      (non-val)
+      (value-of-expression body env)
+      )
+  )
+(define (value-of-global-statement id env)
+  (let ((global-ref (apply-environment id env)))
+    (extend-environment id global-ref env)
+    )
+  )
+(define (value-of-function-def-statement id params body env)
+  (let ((new-ref (newref (proc-val (procedure params body env)))))
+    (extend-environment id new-ref env)
+    )
+  )
+(define (value-of-if-statement condition body else-body env)
+  (let ((condition-result (value-of-expression condition env)))
+    (if (expval->boolean condition-result)
+        (value-of-statements body env)
+        (value-of-statements else-body env)
+        )
+    )
+  )
+(define (value-of-for-statement id iterable body env)
+  (let ((iterable-value (reverse (expval->list (value-of-expression iterable env)))))
+    (begin
+      (value-of-for-body id iterable body env)
+      env)
+    )
+  )
+(define (value-of-for-body id iterable body env)
+  (if (null? iterable)
+      env
+      (begin
+        (let ((result (value-of-for-body id (rest iterable) body env)))
+          (cond
+            [(eqv? result 'break)
+             'break]
+            [else
+             (value-of-statements-inside-for body (extend-environment id (newref (first iterable)) env))]
+            )
+          )
+        )
+      )
+  )
+(define (value-of-statements-inside-for statements env)
+  (if (null? statements)
+      env
+      (let ((to-execute (first statements)))
+        (cases to-execute simple-statement
+          (break-statement ()
+                           'break)
+          (continue-statement ()
+                              env)
+          (else
+           (value-of-statements (rest statements) (value-of-statement to-execute)))
+          )
+        )
+      )
+  )
+    
+  
+
 
     
                      
