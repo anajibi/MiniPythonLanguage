@@ -1,5 +1,8 @@
 #lang eopl
 
+(load-relative "./DataTypesDefinition.rkt")
+(load-relative "./StatementsImplementation.rkt")
+
 (define the-lexical-spec
   '([whitespace (whitespace) skip]
     [comment ("%" (arbno (not #\newline))) skip]
@@ -44,11 +47,33 @@
     [power (atom "**" factor) to-power]
     [power (primary) simple-power]
 
-    ;;TODO: remaining grammer
+    [primary (atom) atom-primary]
+    [primary (primary "[" expression "]") expression-primary]
+    [primary (primary "(" ")") empty-primary]
+    [primary (primary "(" (separated-list expression ",") ")") argument-primary]
 
+    [atom id-atom]
+    [atom (identifier) boolean-atom]
+    [atom ("None") none-atom]
+    [atom (number) number-atom]
+    [atom (list) list-atom]
    ))
 
 (sllgen:make-define-datatypes the-lexical-spec the-grammar)
 
 (define scan&parse
   (sllgen:make-string-parser the-lexical-spec the-grammar))
+
+(define value-of-program
+  (lambda (pgm)
+    (initialize-store!)
+    (cases program pgm
+      [a-program (statement) (value-of-statement statement (empty-env))])))
+
+;; Interface.
+
+(define run
+  (lambda (string)
+    (value-of-program (scan&parse string))))
+
+(provide run)
