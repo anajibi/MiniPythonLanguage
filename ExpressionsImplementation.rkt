@@ -34,7 +34,8 @@
   (cases comparison body
     (simple-comp (x)
                  (value-of-sum x env))
-    (compound-comp (x1 x2) '()))) ;TODO
+    (compound-comp (x1 x2)
+                   (value-of-comp-op-sum-pairs (value-of-sum x1) x2))))
 
 (define (value-of-comp-op-sum-pairs precursor body env)
   (cond
