@@ -55,6 +55,12 @@
     (subtraction-sum (left-hand right-hand) '()) ;TODO
     (simple-sum (x) (value-of-term x env))))
 
+(define (add-or left-hand right-hand)
+  (cases expval right-hand
+    (num-val (num) (+ (expval->val left-hand) (expval->val right-hand)))
+    (bool-val (bool) (or (expval->val left-hand) (expval->val right-hand)))
+    (else '())))
+
 (define (value-of-term body env)
   (cases term body
     (multiplication-factor (left-hand right-hand) '()) ;TODO
