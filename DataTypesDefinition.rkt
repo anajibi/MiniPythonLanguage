@@ -73,11 +73,11 @@
 (define-datatype inversion inversion?
   (not-inversion
    (x inversion?))
-  (comparision-inversion
-   (comp comparision?))
+  (comparison-inversion
+   (comp comparison?))
   )
 
-(define-datatype comparision comparision?
+(define-datatype comparison comparison?
   (simple-comp
    (x sum?))
   (compound-comp
@@ -85,7 +85,7 @@
    (x2 list?))
   )
 
-(define-datatype comp-op-sum-par comp-op-sum-par?
+(define-datatype comp-op-sum-pair comp-op-sum-pair?
   (eq-sum
    (x sum?))
   (lt-sum
