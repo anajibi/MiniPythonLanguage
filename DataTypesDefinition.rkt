@@ -27,7 +27,7 @@
 
 (define-datatype proc proc?
   (procedure
-   (id identifier?)
+   (id symbol?)
    (params list?)
    (body list?))
   )
@@ -40,12 +40,12 @@
 
 (define-datatype simple-statement simple-statement?
   (assignment-statement
-   (id identifier?)
+   (id symbol?)
    (right-hand expr?))
   (return-statement
    (body (lambda (x) (or (expr? x) (null? x)))))
   (global-statement
-   (id identifier?))
+   (id symbol?))
   (pass-statement)
   (break-statement)
   (continue-statement)
@@ -55,7 +55,7 @@
 
 (define-datatype compound-statement compound-statement?
   (function-def-statement
-   (id identifier?)
+   (id symbol?)
    (params list?)
    (body list?))
   (if-statement
@@ -63,13 +63,13 @@
    (body list?)
    (else-body list?))
   (for-statement
-   (id identifier?)
+   (id symbol?)
    (iterable expr?)
    (body list?))
   )
 (define-datatype param param?
   (param-with-default
-   (id identifier?)
+   (id symbol?)
    (expression expr?)
    )
   )
@@ -172,9 +172,9 @@
   )
 (define-datatype atom atom?
   (id-atom
-   (x identifier?))
+   (x symbol?))
   (boolean-atom
-   (x identifier?))
+   (x symbol?))
   (none-atom)
   (number-atom
    (x number?))
@@ -203,9 +203,10 @@
 
 (define (newref val)
   (let ((next-ref (length the-store)))
-    (set! the-store (cons val the-store))
+    (set! the-store (append the-store (list val)))
     next-ref)
   )
+
 
 
 (define (setref! ref new-val)

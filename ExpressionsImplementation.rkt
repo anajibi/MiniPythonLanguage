@@ -12,7 +12,7 @@
 (define (value-of-statements statements env)
   (if (null? statements)
       env
-      (value-of-statements (rest statements) (value-of-statement (first statements)))
+      (value-of-statements (rest statements) (value-of-statement (first statements) env))
       )
   )
 
@@ -201,33 +201,35 @@
 
 (define (value-of-sum body env)
   (cases sum body
-    (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env)
-                                                 (value-of-term right-hand env)))
+    (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env) right-hand env))
     (subtraction-sum (left-hand right-hand)
-                     (- (expval->val left-hand) (expval->val right-hand)))
+                     (num-val (- (expval->val left-hand) (expval->val right-hand))))
     (simple-sum (x) (value-of-term x env))))
 
-(define (add-or left-hand right-hand)
-  (cases expval right-hand
-    (num-val (num) (+ (expval->val left-hand) num))
-    (bool-val (bool) (or bool (expval->val left-hand)))
-    (else 0)))
+(define (add-or left-hand right-hand env)
+  (cases expval left-hand
+    (num-val (num) (num-val (+ (expval->val left-hand) num)))
+    (bool-val (bool) (if (eqv? #t bool)
+                         (bool-val #t)
+                         (value-of-term right-hand env)))
+    (else (non-val))))
 
 (define (value-of-term body env)
   (cases term body
     (multiplication-factor (left-hand right-hand)
-                           (mult-and (value-of-term left-hand env) right-hand)
-                           env)
+                           (mult-and (value-of-term left-hand env) right-hand env))
     (division-factor (left-hand right-hand)
-                     (/ (expval->val (value-of-term left-hand env))
-                        (expval->val (value-of-factor right-hand env))))
+                     (num-val (/ (expval->val (value-of-term left-hand env))
+                        (expval->val (value-of-factor right-hand env)))))
     (simple-term (x) (value-of-factor x env))))
 
 (define (mult-and left-hand right-hand env)
   (cases expval left-hand
-    (num-val (num) (* num (expval->val (value-of-factor right-hand env))))
-    (bool-val (bool) (and bool (expval->val (value-of-factor right-hand env))))
-    (else 0)))
+    (num-val (num) (num-val (* num (expval->val (value-of-factor right-hand env)))))
+    (bool-val (bool) (if (eqv? #f bool)
+                         (bool-val #f)
+                          (value-of-factor right-hand env)))
+    (else (non-val))))
 
 (define (value-of-factor body env)
   (cases factor body
@@ -249,9 +251,18 @@
 (define (value-of-atom val env)
   (cases atom val
     (id-atom (x)
-             x)
+             (let ((ref (apply-environment x env)))
+               (let ((value (deref ref)))
+               (cases thunk value
+                 (a-thunk (exp1)
+                          (let ((result (value-of-expression exp1 env)))
+                            (setref! ref result)
+                            result)
+                          )
+                 (else
+                  value)))))
   (boolean-atom (x)
-                (bool-val x))
+                (bool-val (to-boolean x)))
   (none-atom ()
              (non-val))
   (number-atom (x)
@@ -260,9 +271,12 @@
              (list-val x))
     )
   )
+(define (to-boolean x)
+  (eqv? x 'True))
+     
 (define (value-of-primary body env)
   (cases primary body
-    (atom-primary (x) (value-of-atom x))
+    (atom-primary (x) (value-of-atom x env))
     (expression-primary (x exp1) (value-of-expression-primary x exp1 env))
     (empty-primary (x) (value-of-empty-primary x env))
     (argument-primary (x args) (value-of-argument-primary x args env))))
@@ -294,4 +308,52 @@
       )
     )
   )
-(provide (all-defined-out))
+(define (value-of-thunk t env)
+  (cases thunk t
+    (a-thunk (exp1)
+             (value-of-expression exp1 env)
+             )
+    )
+  )
+(define (deref ref)
+   (list-ref the-store ref))
+(define test
+  (list
+    (s-statement           
+     (assignment-statement
+      'a
+      (disjunction-exp
+       (simple-disjunct
+        (simple-conjunct
+         (comparison-inversion
+          (simple-comp
+           (simple-sum
+            (simple-term
+             (simple-factor
+              (simple-power
+               (atom-primary
+                (number-atom
+                 12)))))))))))))
+    (s-statement
+     (assignment-statement
+      'b
+      (disjunction-exp
+       (simple-disjunct
+        (simple-conjunct
+         (comparison-inversion
+          (simple-comp
+           (addition-sum
+            (simple-sum
+             (simple-term
+              (simple-factor
+               (simple-power
+                (atom-primary
+                 (boolean-atom
+                 'True)
+                 )))))
+            (simple-term
+             (simple-factor
+              (simple-power
+               (atom-primary
+                (number-atom
+                 12)))))))))))))))
