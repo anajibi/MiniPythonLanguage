@@ -1,5 +1,11 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
+(define-datatype thunk thunk?
+  (a-thunk
+   (expression expr?)
+   )
+  )
+
 (define-datatype expval expval?
   (num-val
    (num number?))
@@ -25,8 +31,14 @@
    (params list?)
    (body list?))
   )
+(define-datatype statement statement?
+  (s-statement
+   (s simple-statement?))
+  (c-statement
+   (s compound-statement?))
+  )
 
-(define-datatype simple-statement s-statement?
+(define-datatype simple-statement simple-statement?
   (assignment-statement
    (id identifier?)
    (right-hand expr?))
@@ -41,7 +53,7 @@
    (arg list?))
   )
 
-(define-datatype compound-statement c-statement?
+(define-datatype compound-statement compound-statement?
   (function-def-statement
    (id identifier?)
    (params list?)
@@ -54,6 +66,12 @@
    (id identifier?)
    (iterable expr?)
    (body list?))
+  )
+(define-datatype param param?
+  (param-with-default
+   (id identifier?)
+   (expression expr?)
+   )
   )
 
 (define-datatype expr expr?
@@ -189,11 +207,32 @@
     next-ref)
   )
 
-(define (deref ref)
-  (list-ref the-store ref))
 
 (define (setref! ref new-val)
   (set! the-store (list-set the-store ref new-val))
+  )
+(define (extend-env-with-args params args env)
+  (if (null? args)
+      (extend-env-only-params params env)
+      (extend-env-with-args (rest params) (rest args)
+                            (extend-env-with-arg (first params) (first args) env))
+      )
+  )
+(define (extend-env-only-params params env)
+  (if (null? params)
+      env
+      (cases param (first params)
+        (param-with-default (id exp1)
+                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1)) env)))
+        )
+      )
+  )
+
+(define (extend-env-with-arg param1 arg1 env)
+  (cases param param1
+    (param-with-default (id exp1)
+                        (extend-environment id (newref (a-thunk arg1)) env))
+    )
   )
 
 (provide (all-defined-out))
