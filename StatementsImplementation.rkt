@@ -1,5 +1,6 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
+(require "./DataTypesDefinition.rkt")
 
 
 (define (value-of-program program)
