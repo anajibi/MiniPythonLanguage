@@ -65,14 +65,18 @@
 
 (define (value-of-term body env)
   (cases term body
-    (multiplication-factor (left-hand right-hand) '()) ;TODO
-    (division-factor (left-hand right-hand) '()) ;TODO
+    (multiplication-factor (left-hand right-hand)
+                           (mult-and (value-of-term left-hand env) right-hand)
+                           env)
+    (division-factor (left-hand right-hand)
+                     (/ (expval->val (value-of-term left-hand env))
+                        (expval->val (value-of-factor right-hand env))))
     (simple-term (x) (value-of-factor x env))))
 
-(define (mult-and left-hand right-hand)
+(define (mult-and left-hand right-hand env)
   (cases expval left-hand
-    (num-val (num) (* num (expval->val right-hand)))
-    (bool-val (bool) (and bool (expval->val right-hand)))
+    (num-val (num) (* num (expval->val (value-of-factor right-hand env))))
+    (bool-val (bool) (and bool (expval->val (value-of-factor right-hand env))))
     (else 0)))
 
 (define (value-of-factor body env)
