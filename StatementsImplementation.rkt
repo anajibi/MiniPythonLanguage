@@ -120,7 +120,27 @@
         )
       )
   )
-    
+
+(define (value-of-print-statement statement env)
+  (cases expval (value-of-statement statement env)
+    [num-val (num)
+             (display num)
+             (newline)]
+    [bool-val (bool)
+              (display bool)
+              (newline)]
+    [proc-val (proc)
+              (display "<procedure>")
+              (newline)]
+    [list-val (lst)
+              (display lst)
+              (newlinw)]
+    [non-val
+             (display "None")
+             (newline)]))
+
+(define (value-of-evaluate-statemenet path)
+  (run (call-with-input-file path (lambda (in) (port->string in)))))
   
 
 

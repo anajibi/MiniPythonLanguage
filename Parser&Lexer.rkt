@@ -11,7 +11,8 @@
     [number ("-" digit (arbno digit)) number]))
 
 (define the-grammar
-  '([simple-statement (identifier "=" expression) assignment-statement]
+  '([program (statement) a-program]
+    [simple-statement (identifier "=" expression) assignment-statement]
     [simple-statement ("return" expression) return-statement]
     [simple-statement ("global" identifier) global-statement]
     [simple-statement ("pass") pass-statement]
@@ -63,14 +64,6 @@
 
 (define scan&parse
   (sllgen:make-string-parser the-lexical-spec the-grammar))
-
-(define value-of-program
-  (lambda (pgm)
-    (initialize-store!)
-    (cases program pgm
-      [a-program (statement) (value-of-statement statement (empty-env))])))
-
-;; Interface.
 
 (define run
   (lambda (string)
