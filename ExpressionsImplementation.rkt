@@ -26,5 +26,12 @@
   (cases inverstion body
     (not-inversion (x)
                    (not (value-of-inversion x env)))
-    (comparision-inversion (comp)
+    (comparison-inversion (comp)
                            (value-of-comparison comp env))))
+
+(define (value-of-comparison body env)
+  (cases comparison body
+    (simple-comp (x)
+                 (value-of-sum x env))
+    (compound-comp (x1 x2) '()))) ;TODO
+
