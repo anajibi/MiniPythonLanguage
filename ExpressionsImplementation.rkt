@@ -36,7 +36,11 @@
                  (value-of-sum x env))
     (compound-comp (x1 x2) '()))) ;TODO
 
-(define (value-of-comp-op-sum-pairs body env) '()) ;TODO
+(define (value-of-comp-op-sum-pairs precursor body env)
+  (cond
+    [(null? body) precursor]
+    [else (value-of-comp-op-sum-pairs
+           (value-of-comp-op-sum-pair precursor (car body) env) (cdr body) env)]))
 
 (define (value-of-comp-op-sum-pair precursor body env)
   (cases comp-op-sum-pair body
