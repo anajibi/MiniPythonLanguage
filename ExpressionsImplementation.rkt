@@ -1,5 +1,6 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
+(require "DataTypesDefinition.rkt")
 
 (define (value-of-expression exp1 env)
   (cases exp exp1
@@ -45,4 +46,10 @@
   (cases term body
     (multiplication-factor (left-hand right-hand) '()) ;TODO
     (division-factor (left-hand right-hand) '()) ;TODO
-    (simple-term (x) (value-of-term x))))
+    (simple-term (x) (value-of-factor x env))))
+
+(define (value-of-factor body env)
+  (cases factor body
+    (plus-factor (x) x)
+    (minus-factor (x) (- x))
+    (simple-factor (x) (value-of-power x env))))
