@@ -35,3 +35,8 @@
                  (value-of-sum x env))
     (compound-comp (x1 x2) '()))) ;TODO
 
+(define (value-of-sum body env)
+  (cases sum body
+    (addition-sum (left-hand right-hand) '()) ;TODO
+    (subtraction-sum (left-hand right-hand) '()) ;TODO
+    (simple-sum (x) (value-of-term x))))
