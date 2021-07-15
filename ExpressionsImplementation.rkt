@@ -92,7 +92,7 @@
 
 (define (value-of-primary body env)
   (cases primary body
-    (atom-primary (x) (value-of-atom x env))
+    (atom-primary (x) (expval->val x))
     (expression-primary (x exp1) '()) ;TODO
     (empty-primary (x) '()) ;TODO
     (argument-primary (x args) '()))) ;TODO
