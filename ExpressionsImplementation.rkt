@@ -61,7 +61,8 @@
 
 (define (value-of-primary body env)
   (cases primary body
-    (atom-primary (x) '()) ;TODO
+    (atom-primary (x) (value-of-atom x env))
     (expression-primary (x exp1) '()) ;TODO
     (empty-primary (x) '()) ;TODO
     (argument-primary (x args) '()))) ;TODO
+
