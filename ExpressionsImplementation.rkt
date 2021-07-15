@@ -36,6 +36,14 @@
                  (value-of-sum x env))
     (compound-comp (x1 x2) '()))) ;TODO
 
+(define (value-of-comp-op-sum-pairs body env) '()) ;TODO
+
+(define (value-of-comp-op-sum-pair precursor body env)
+  (cases comp-op-sum-pair body
+    (eq-sum (x) (equal? precursor (value-of-sum x env)))
+    (lt-sum (x) (< precursor (value-of-sum x env)))
+    (gt-sum (x) (> precursor (value-of-sum x env)))))
+
 (define (value-of-sum body env)
   (cases sum body
     (addition-sum (left-hand right-hand) '()) ;TODO
@@ -65,4 +73,3 @@
     (expression-primary (x exp1) '()) ;TODO
     (empty-primary (x) '()) ;TODO
     (argument-primary (x args) '()))) ;TODO
-
