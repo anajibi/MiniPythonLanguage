@@ -39,4 +39,10 @@
   (cases sum body
     (addition-sum (left-hand right-hand) '()) ;TODO
     (subtraction-sum (left-hand right-hand) '()) ;TODO
-    (simple-sum (x) (value-of-term x))))
+    (simple-sum (x) (value-of-term x env))))
+
+(define (value-of-term body env)
+  (cases term body
+    (multiplication-factor (left-hand right-hand) '()) ;TODO
+    (division-factor (left-hand right-hand) '()) ;TODO
+    (simple-term (x) (value-of-term x))))
