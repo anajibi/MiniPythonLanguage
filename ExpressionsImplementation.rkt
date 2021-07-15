@@ -53,3 +53,8 @@
     (plus-factor (x) x)
     (minus-factor (x) (- x))
     (simple-factor (x) (value-of-power x env))))
+
+(define (value-of-power body env)
+  (cases power body
+    (to-power (left-hand right-hand) '()) ;TODO
+    (simple-power (x) (value-of-primary x env))))
