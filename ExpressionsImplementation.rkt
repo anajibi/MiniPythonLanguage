@@ -59,15 +59,21 @@
 
 (define (add-or left-hand right-hand)
   (cases expval right-hand
-    (num-val (num) (+ (expval->val left-hand) (expval->val right-hand)))
-    (bool-val (bool) (or (expval->val left-hand) (expval->val right-hand)))
-    (else '())))
+    (num-val (num) (+ (expval->val left-hand) num))
+    (bool-val (bool) (or bool (expval->val left-hand)))
+    (else 0)))
 
 (define (value-of-term body env)
   (cases term body
     (multiplication-factor (left-hand right-hand) '()) ;TODO
     (division-factor (left-hand right-hand) '()) ;TODO
     (simple-term (x) (value-of-factor x env))))
+
+(define (mult-and left-hand right-hand)
+  (cases expval left-hand
+    (num-val (num) (* num (expval->val right-hand)))
+    (bool-val (bool) (and bool (expval->val right-hand)))
+    (else 0)))
 
 (define (value-of-factor body env)
   (cases factor body
