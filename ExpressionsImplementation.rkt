@@ -21,3 +21,10 @@
     (compound-conjunct (x1 x2)
                        (and (value-of-conjunction x1 env)
                             (value-of-conjunction x1 env)))))
+
+(define (value-of-inversion body env)
+  (cases inverstion body
+    (not-inversion (x)
+                   (not (value-of-inversion x env)))
+    (comparision-inversion (comp)
+                           (value-of-comparison comp env))))
