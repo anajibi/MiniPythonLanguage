@@ -14,3 +14,10 @@
                        (or (value-of-disjunction x1 env)
                            (value-of-disjunction x1 env)))))
 
+(define (value-of-conjunction body env)
+  (cases conjunct conjunct1
+    (simple-conjunct (x)
+                     (value-of-inversion x env))
+    (compound-conjunct (x1 x2)
+                       (and (value-of-conjunction x1 env)
+                            (value-of-conjunction x1 env)))))
