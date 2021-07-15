@@ -1,9 +1,9 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
-(require "DataTypesDefinition.rkt")
+(require "./DataTypesDefinition.rkt")
 
 (define (value-of-expression exp1 env)
-  (cases exp exp1
+  (cases expr exp1
     (disjunction-exp (body)
                      (value-of-disjunction body env))))
 
@@ -24,7 +24,7 @@
                             (value-of-conjunction x1 env)))))
 
 (define (value-of-inversion body env)
-  (cases inverstion body
+  (cases inversion body
     (not-inversion (x)
                    (not (value-of-inversion x env)))
     (comparison-inversion (comp)

@@ -29,9 +29,9 @@
 (define-datatype simple-statement s-statement?
   (assignment-statement
    (id identifier?)
-   (right-hand exp?))
+   (right-hand expr?))
   (return-statement
-   (body (lambda (x) (or (exp? x) (null? x)))))
+   (body (lambda (x) (or (expr? x) (null? x)))))
   (global-statement
    (id identifier?))
   (pass-statement)
@@ -47,16 +47,16 @@
    (params list?)
    (body list?))
   (if-statement
-   (condition exp?)
+   (condition expr?)
    (body list?)
    (else-body list?))
   (for-statement
    (id identifier?)
-   (iterable exp?)
+   (iterable expr?)
    (body list?))
   )
 
-(define-datatype exp exp?
+(define-datatype expr expr?
   (disjunction-exp
    (body disjunct?))
   )
@@ -145,7 +145,7 @@
    (x atom?))
   (expression-primary
    (x primary?)
-   (expression exp?))
+   (expression expr?))
   (empty-primary
    (x primary?))
   (argument-primary
