@@ -58,3 +58,10 @@
   (cases power body
     (to-power (left-hand right-hand) '()) ;TODO
     (simple-power (x) (value-of-primary x env))))
+
+(define (value-of-primary body env)
+  (cases primary body
+    (atom-primary (x) '()) ;TODO
+    (expression-primary (x exp1) '()) ;TODO
+    (empty-primary (x) '()) ;TODO
+    (argument-primary (x args) '()))) ;TODO
