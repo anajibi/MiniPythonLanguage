@@ -51,8 +51,10 @@
 
 (define (value-of-sum body env)
   (cases sum body
-    (addition-sum (left-hand right-hand) '()) ;TODO
-    (subtraction-sum (left-hand right-hand) '()) ;TODO
+    (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env)
+                                                 (value-of-term right-hand env)))
+    (subtraction-sum (left-hand right-hand)
+                     (- (expval->val left-hand) (expval->val right-hand)))
     (simple-sum (x) (value-of-term x env))))
 
 (define (add-or left-hand right-hand)
