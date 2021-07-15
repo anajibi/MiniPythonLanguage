@@ -357,3 +357,5 @@
                (atom-primary
                 (number-atom
                  12)))))))))))))))
+(define envtest (value-of-program test))
+(value-of-thunk (second the-store) envtest)
