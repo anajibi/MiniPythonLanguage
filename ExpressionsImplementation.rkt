@@ -7,7 +7,7 @@
                      (value-of-disjunction body env))))
 
 (define (value-of-disjunction body env)
-  (cases disjunct disjunct1
+  (cases disjunct body
     (simple-disjunct (x)
                      (value-of-conjunction x env))
     (compound-disjunct (x1 x2)
@@ -15,7 +15,7 @@
                            (value-of-disjunction x1 env)))))
 
 (define (value-of-conjunction body env)
-  (cases conjunct conjunct1
+  (cases conjunct body
     (simple-conjunct (x)
                      (value-of-inversion x env))
     (compound-conjunct (x1 x2)
