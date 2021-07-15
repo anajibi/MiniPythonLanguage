@@ -12,6 +12,13 @@
   (non-val)
   )
 
+(define (expval->val exp1)
+  (cases expval exp1
+    (list-val (lst) lst)
+    (bool-val (bool) bool)
+    (num-val (num) num)
+    (non-val '())))
+
 (define-datatype proc proc?
   (procedure
    (id identifier?)
