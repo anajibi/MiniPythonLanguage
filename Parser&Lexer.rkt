@@ -34,13 +34,13 @@
     [disjunct (conjunct) simple-disjunct]
     [disjunct (disjunct "or" conjunct) compound-disjunct]
 
-    ;[conjunct (inversion) simple-conjunct]
+    [conjunct (inversion) simple-conjunct]
     [conjunct (conjunct "and" inversion) compound-conjunct]
 
-    [inversion ("not" inversion) not-inversion]
+    ;[inversion ("not" inversion) not-inversion]
     [inversion (comparison) comparison-inversion]
 
-    ;[comparison (sum) simple-comp]
+    [comparison (sum) simple-comp]
     [comparison (sum (arbno comp-op-sum-pair)) compound-comp]
 
     [comp-op-sum-pair ("==" sum) eq-sum]
@@ -49,7 +49,7 @@
 
     [sum (sum "+" term) addition-sum]
     [sum (sum "-" term) subtraction-sum]
-    ;[sum (term) simple-sum]
+    [sum (term) simple-sum]
 
     [term (term "*" factor) multiplication-factor]
     [term (term "/" factor) division-factor]
