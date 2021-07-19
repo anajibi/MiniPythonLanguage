@@ -377,7 +377,7 @@
     (argument-primary (x args) (value-of-argument-primary x args env))))
 
 (define (value-of-expression-primary x exp1 env)
-  (value-of-expression (list-ref (expval->val (value-of-primary x)) (expval->val (value-of-expression exp1))))
+  (value-of-expression (list-ref (expval->val (value-of-primary x env)) (expval->val (value-of-expression exp1 env))) env)
   )
 (define (value-of-empty-primary x env)
   (let ((val (expval->val (value-of-primary x env))))

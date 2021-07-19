@@ -58,9 +58,35 @@
  'opening-paranthesis
  'closing-paranthesis
  'colon
+ 'IF
+ 'NOT
+ (token 'NUM 12)
+ 'lessthan
+ (token 'NUM 13)
+ 'lessthan
+ (token 'NUM 14)
+ 'colon
+ 'return
+ (token 'NUM 0)
+ 'AND
+ (token 'NUM 12)
+ 'semicolon
+ 'ELSE
+ 'colon
  'return
  (token 'NUM 8)
  'semicolon
+ 'semicolon
+ 'semicolon
+ (token 'ID "b")
+ 'assignto
+ 'opening-bracket
+ (token 'NUM 1)
+ 'comma
+ (token 'NUM 2)
+ 'comma
+ (token 'NUM 3)
+ 'closing-bracket
  'semicolon
  (token 'ID "a")
  'assignto
@@ -68,9 +94,16 @@
  'opening-paranthesis
  'closing-paranthesis
  'semicolon
+ (token 'ID "c")
+ 'assignto
+ (token 'ID "b")
+ 'opening-bracket
+ (token 'NUM 2)
+ 'closing-bracket
+ 'semicolon
  'printval
  'opening-paranthesis
- (token 'ID "a")
+ (token 'ID "c")
  'closing-paranthesis
  'semicolon
  'EOF)

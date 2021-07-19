@@ -7,6 +7,11 @@ def fact(n = 1):
         n = temp;;
     return n;;
 def f():
-    return 8;;
+    if  not 12 < 13 < 14:
+        return 0 and 12;
+    else:
+        return 8;;;
+b = [1,2,3];
 a = fact();
-printval(a);
+c = b[2];
+printval(c);
