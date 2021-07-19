@@ -1,6 +1,8 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
 (require "./DataTypesDefinition.rkt")
+(require "./lexer.rkt")
+(require "./parser.rkt")
 
 (define (value-of-program program)
   (begin
@@ -60,9 +62,20 @@
     (continue-statement ()
                         env)
     (print-statement (lst)
-                    (begin
-                      (display lst)
-                      env))
+                     (begin
+                       (display lst)
+                       env))
+    (printval-statement (lst)
+                     (begin
+                       (value-of-atom (display lst))
+                       env))
+    (evaluate-statement (address)
+                        (let*
+                          ((program (open-input-file "./test.plpy"))
+                           (result (value-of-program (parse program))))
+                          (begin
+                            (display result)
+                            env)))
     )
   )
 
@@ -552,5 +565,9 @@
        )
       )
      )
-(define envtest (value-of-program test))
+(define addr "'./test.pypl'")
+(define test1 (list (s-statement (evaluate-statement (substring addr 1 (- (string-length addr) 1))))))
+
+(define envtest (value-of-program test1))
 ;;(value-of-thunk (third the-store) envtest)
+(provide value-of-program)

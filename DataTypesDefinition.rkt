@@ -52,6 +52,10 @@
   (continue-statement)
   (print-statement
    (arg list?))
+  (printval-statement
+   (arg list?))
+  (evaluate-statement
+   (address string?))
   )
 
 (define-datatype compound-statement compound-statement?

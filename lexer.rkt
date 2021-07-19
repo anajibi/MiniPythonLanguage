@@ -23,12 +23,14 @@
             ("]" (token-opening-bracket))
             (":" (token-colon))
             ("," (token-comma))
+            ((:or "\"" "'") (token-double-quote))
             ("pass" (token-pass))
             ("break" (token-break))
             ("continue" (token-continue))
             ("return" (token-return))
             ("global" (token-global))
             ("print" (token-print))
+            ("evaluate" (token-evaluate))
             ("def" (token-def))
             ("if" (token-IF))
             ("else" (token-ELSE))
@@ -54,10 +56,14 @@
                     (char-range #\0 #\9)
                     #\_)))
              (token-ID lexeme))
+            ((:: (:or "\"" "'")
+                 (complement (:or "\"" "'"))
+                 (:or "\"" "'"))
+             (token-FILE-ADDRESS lexeme))
             (whitespace (simple-python-lexer input-port))
             ((eof) (token-EOF))))
 
-(define-tokens a (NUM ID))
+(define-tokens a (NUM ID FILE-ADDRESS))
 (define-empty-tokens b (EOF
                         semicolon
                         assignto
@@ -75,12 +81,14 @@
                         closing-bracket
                         colon
                         comma
+                        double-quote
                         pass
                         break
                         continue
                         return
                         global
                         print
+                        evaluate
                         def
                         IF
                         ELSE
@@ -95,7 +103,8 @@
 
 
 ;test
-(define test-program (open-input-file "./test.plpy"))
+(define test-program (open-input-string "evaluate('./test.plpy');"))
+;(define test-program (open-input-file "./test.plpy"))
 (define lex-this (lambda (lexer input) (lambda () (lexer input))))
 (define my-lexer (lex-this simple-python-lexer test-program))
 (define (lex-all my-lexer)

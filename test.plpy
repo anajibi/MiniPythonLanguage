@@ -1,5 +1,1 @@
-def f():
-    global a;
-    a = a + 1;;
-a = 2;
-b = f();
+print(12, None, True, False, a);
