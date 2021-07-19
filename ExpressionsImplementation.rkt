@@ -156,7 +156,7 @@
 (define (value-of-for-statement id iterable body env)
   (let ((iterable-value (reverse (expval->val (value-of-expression iterable env)))))
         (let ((result (value-of-for-body id iterable-value body env)))
-          (if (eqv? result 'break)
+          (if (or (eqv? result 'break) (eqv? result 'continue))
               env
               result)
           )
@@ -170,6 +170,8 @@
           (cond
             [(eqv? result 'break)
              'break]
+            [(eqv? result 'continue)
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
             [(null? result)
              (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
             [(eqv? 'Return (first result))
@@ -191,7 +193,7 @@
                          (break-statement ()
                                           'break)
                          (continue-statement ()
-                                             env)
+                                             'continue)
                          (return-statement (e1)
                                            (value-of-return-statement e1 env))
                          (else
@@ -203,11 +205,23 @@
           (c-statement (s)
                        (cases compound-statement s
                          (if-statement (condition body else-body)
-                                       (value-of-if-statement condition body else-body env value-of-statements-inside-for))
+                                       (let ((result (value-of-if-statement condition body else-body env value-of-statements-inside-for)))
+                                         (cond
+                                           [(eqv? result 'break)
+                                            'break]
+                                           [(eqv? result 'continue)
+                                            'continue]
+                                           [(null? result)
+                                            (value-of-statements-inside-for (rest statements) result)]
+                                           [(eqv? 'Return (first result))
+                                            result]
+                                           [else
+                                            (value-of-statements-inside-for (rest statements) result)]
+                                           )))
                          (else
                           (begin
                             (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env))
-                          env))
+                            env))
                          )
                        )
           )

@@ -3,7 +3,11 @@ def fact(n = 1):
     global f;
     global b;
     b = [7,8,9,10];
-    for i in [1, 2, 3, 4, 5, 6,7, f()]:
+    for i in [1, 2,3,4,5,6,7]:
+        if i == 4:
+            continue;
+        else:
+            pass;;
         temp = n * i;
         printval(temp);
         n = temp;;

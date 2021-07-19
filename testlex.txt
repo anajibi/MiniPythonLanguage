@@ -42,12 +42,20 @@
  (token 'NUM 6)
  'comma
  (token 'NUM 7)
- 'comma
- (token 'ID "f")
- 'opening-paranthesis
- 'closing-paranthesis
  'closing-bracket
  'colon
+ 'IF
+ (token 'ID "i")
+ 'equals
+ (token 'NUM 4)
+ 'colon
+ 'continue
+ 'semicolon
+ 'ELSE
+ 'colon
+ 'pass
+ 'semicolon
+ 'semicolon
  (token 'ID "temp")
  'assignto
  (token 'ID "n")
@@ -58,6 +66,8 @@
  'opening-paranthesis
  (token 'ID "temp")
  'closing-paranthesis
+ 'semicolon
+ 'continue
  'semicolon
  (token 'ID "n")
  'assignto
