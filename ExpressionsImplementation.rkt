@@ -122,7 +122,9 @@
         (let ((new-ref (newref (a-thunk right-hand env))))
           (extend-environment id new-ref env)
           )
-        (setref! prev-dec (a-thunk right-hand env))
+        (begin
+          (setref! prev-dec (a-thunk right-hand env))
+          env)
         )
     )
   )

@@ -10,6 +10,21 @@
  'global
  (token 'ID "f")
  'semicolon
+ 'global
+ (token 'ID "b")
+ 'semicolon
+ (token 'ID "b")
+ 'assignto
+ 'opening-bracket
+ (token 'NUM 7)
+ 'comma
+ (token 'NUM 8)
+ 'comma
+ (token 'NUM 9)
+ 'comma
+ (token 'NUM 10)
+ 'closing-bracket
+ 'semicolon
  'FOR
  (token 'ID "i")
  'IN
@@ -92,6 +107,11 @@
  'assignto
  (token 'ID "fact")
  'opening-paranthesis
+ 'closing-paranthesis
+ 'semicolon
+ 'printval
+ 'opening-paranthesis
+ (token 'ID "a")
  'closing-paranthesis
  'semicolon
  (token 'ID "c")
