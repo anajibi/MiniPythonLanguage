@@ -23,7 +23,8 @@
     (list-val (lst) lst)
     (bool-val (bool) bool)
     (num-val (num) num)
-    (non-val '())))
+    (non-val () 'None)
+    (proc-val (p) p)))
 
 (define-datatype proc proc?
   (procedure
