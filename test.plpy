@@ -1,8 +1,12 @@
-def fact(n = 1):
-    if n < 1:
-        return 1;
-    else:
-        return n * fact(n - 1);;;
 
-a = fact(5);
+def fact(n = 1):
+    global f;
+    for i in [1, 2, 3, 4, 5, 6,7, f()]:
+        temp = n * i;
+        printval(temp);
+        n = temp;;
+    return n;;
+def f():
+    return 8;;
+a = fact();
 printval(a);

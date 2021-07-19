@@ -7,7 +7,7 @@
 
 (define (extend-env-with-args params args env prev-env)
   (if (null? args)
-      (extend-env-only-params params env)
+      (extend-env-only-params params env prev-env)
       (extend-env-with-args (rest params) (rest args)
                             (extend-env-with-arg (first params) (first args) env prev-env)
                             prev-env)
@@ -19,12 +19,12 @@
                         (extend-environment id (newref (a-thunk arg1 prev-env)) env))
     )
   )
-(define (extend-env-only-params params env)
+(define (extend-env-only-params params env prev-env)
   (if (null? params)
       env
       (cases param (first params)
         (param-with-default (id exp1)
-                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1)) env)))
+                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1 prev-env)) env) prev-env))
         )
       )
   )
@@ -169,11 +169,11 @@
             [(eqv? result 'break)
              'break]
             [(null? result)
-             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable))) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
             [(eqv? 'Return (first result))
              result]
             [else
-             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable))) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
             )
           )
         )
@@ -193,7 +193,9 @@
                          (return-statement (e1)
                                            (value-of-return-statement e1 env))
                          (else
-                          (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env)))
+                          (begin
+                            (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env))
+                          env))
                          )
                        )
           (c-statement (s)
@@ -201,7 +203,9 @@
                          (if-statement (condition body else-body)
                                        (value-of-if-statement condition body else-body env value-of-statements-inside-for))
                          (else
-                          (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env)))
+                          (begin
+                            (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env))
+                          env))
                          )
                        )
           )
@@ -293,7 +297,7 @@
 
 (define (value-of-sum body env)
   (cases sum body
-    (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env) right-hand env))
+    (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env)  (value-of-term right-hand env) env))
     (subtraction-sum (left-hand right-hand)
                      (num-val (- (expval->val (value-of-sum left-hand env)) (expval->val (value-of-term right-hand env)))))
     (simple-sum (x) (value-of-term x env))))

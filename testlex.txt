@@ -7,33 +7,65 @@
  (token 'NUM 1)
  'closing-paranthesis
  'colon
- 'IF
- (token 'ID "n")
- 'lessthan
- (token 'NUM 1)
- 'colon
- 'return
- (token 'NUM 1)
+ 'global
+ (token 'ID "f")
  'semicolon
- 'ELSE
+ 'FOR
+ (token 'ID "i")
+ 'IN
+ 'opening-bracket
+ (token 'NUM 1)
+ 'comma
+ (token 'NUM 2)
+ 'comma
+ (token 'NUM 3)
+ 'comma
+ (token 'NUM 4)
+ 'comma
+ (token 'NUM 5)
+ 'comma
+ (token 'NUM 6)
+ 'comma
+ (token 'NUM 7)
+ 'comma
+ (token 'ID "f")
+ 'opening-paranthesis
+ 'closing-paranthesis
+ 'closing-bracket
  'colon
- 'return
+ (token 'ID "temp")
+ 'assignto
  (token 'ID "n")
  'multiply
- (token 'ID "fact")
+ (token 'ID "i")
+ 'semicolon
+ 'printval
  'opening-paranthesis
- (token 'ID "n")
- 'minus
- (token 'NUM 1)
+ (token 'ID "temp")
  'closing-paranthesis
  'semicolon
+ (token 'ID "n")
+ 'assignto
+ (token 'ID "temp")
+ 'semicolon
+ 'semicolon
+ 'return
+ (token 'ID "n")
+ 'semicolon
+ 'semicolon
+ 'def
+ (token 'ID "f")
+ 'opening-paranthesis
+ 'closing-paranthesis
+ 'colon
+ 'return
+ (token 'NUM 8)
  'semicolon
  'semicolon
  (token 'ID "a")
  'assignto
  (token 'ID "fact")
  'opening-paranthesis
- (token 'NUM 5)
  'closing-paranthesis
  'semicolon
  'printval
