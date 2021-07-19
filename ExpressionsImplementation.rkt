@@ -79,8 +79,13 @@
   )
 
 (define (value-of-assignment-statement id right-hand env)
-  (let ((new-ref (newref (a-thunk right-hand))))
-    (extend-environment id new-ref env)
+  (let ((prev-dec (apply-environment id env)))
+    (if (null? prev-dec)
+        (let ((new-ref (newref (a-thunk right-hand))))
+          (extend-environment id new-ref env)
+          )
+        (setref! prev-dec (a-thunk right-hand))
+        )
     )
   )
 (define (value-of-return-statement body env)
@@ -91,7 +96,7 @@
   )
 
 (define (value-of-global-statement id env)
-  (let ((global-ref (apply-environment id env)))
+  (let ((global-ref (apply-environment id (get-global-environment env))))
     (extend-environment id global-ref env)
     )
   )
@@ -336,7 +341,7 @@
   (let ((val (expval->val (value-of-primary x env))))
     (cases proc val
       (procedure (id params body)
-                 (apply-procedure id params body (list) env)
+                 (apply-procedure id params body (list) (add-environment-scope env))
                  )
       )
     )
@@ -431,6 +436,11 @@
      'p1
      (list)
      (list
+      (s-statement
+       (global-statement
+        'a
+        )
+       )
       (c-statement
        (for-statement
         'i
@@ -455,6 +465,22 @@
                  (eq-sum
                   (make-num 2))))))))
            (list
+            (s-statement
+             (assignment-statement
+              'b
+              (disjunction-exp
+               (simple-disjunct
+                (simple-conjunct
+                 (comparison-inversion
+                  (simple-comp
+                   (simple-sum
+                    (simple-term
+                     (plus-factor
+                      (simple-factor
+                       (simple-power
+                        (atom-primary
+                         (number-atom
+                          170))))))))))))))
             (s-statement
              (return-statement (sne 77)))
             (s-statement
