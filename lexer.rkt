@@ -3,6 +3,7 @@
 (require parser-tools/lex
          (prefix-in : parser-tools/lex-sre)
          parser-tools/yacc)
+(require racket/pretty)
 
 (define simple-python-lexer
            (lexer
@@ -27,6 +28,7 @@
             ("continue" (token-continue))
             ("return" (token-return))
             ("global" (token-global))
+            ("print" (token-print))
             ("def" (token-def))
             ("if" (token-IF))
             ("else" (token-ELSE))
@@ -78,6 +80,7 @@
                         continue
                         return
                         global
+                        print
                         def
                         IF
                         ELSE
@@ -92,13 +95,19 @@
 
 
 ;test
-(define test-code
-  "12arr = 2; if (arr == 2) : a = arr + 3;;")
+(define test-program (open-input-file "./test.plpy"))
 (define lex-this (lambda (lexer input) (lambda () (lexer input))))
-(define my-lexer (lex-this simple-python-lexer (open-input-string test-code)))
+(define my-lexer (lex-this simple-python-lexer test-program))
 (define (lex-all my-lexer)
   (let ((lex-res (my-lexer)))
     (if (equal? 'EOF lex-res)
         (list lex-res)
         (cons lex-res (lex-all my-lexer)))))
-(lex-all my-lexer)
+
+(define test-lex-output (open-output-file "./testlex.txt" #:exists 'replace))
+(pretty-print (lex-all my-lexer) test-lex-output)
+(close-output-port test-lex-output)
+
+(provide a)
+(provide b)
+(provide simple-python-lexer)

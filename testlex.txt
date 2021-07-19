@@ -1,0 +1,27 @@
+(list
+ 'def
+ (token 'ID "f")
+ 'opening-paranthesis
+ 'closing-paranthesis
+ 'colon
+ 'global
+ (token 'ID "a")
+ 'semicolon
+ (token 'ID "a")
+ 'assignto
+ (token 'ID "a")
+ 'plus
+ (token 'NUM 1)
+ 'semicolon
+ 'semicolon
+ (token 'ID "a")
+ 'assignto
+ (token 'NUM 2)
+ 'semicolon
+ (token 'ID "b")
+ 'assignto
+ (token 'ID "f")
+ 'opening-paranthesis
+ 'closing-paranthesis
+ 'semicolon
+ 'EOF)
