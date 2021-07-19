@@ -12,8 +12,28 @@
 (define (value-of-statements statements env)
   (if (null? statements)
       env
-      (value-of-statements (rest statements) (value-of-statement (first statements) env))
+      (let ((result (value-of-statement (first statements) env)))
+        (if (null? result)
+            (value-of-statements (rest statements) result)
+            (cond
+              [(eqv? 'Return (first result))
+               result]
+              [else
+               (value-of-statements (rest statements) result)])
+            )
+        )
       )
+  )
+(define (value-of-statements-function statements env)
+  (let ((result (value-of-statements statements env)))
+    (if (null? result)
+        (non-val)
+        (if (eqv? 'Return (first result))
+            (second result) 
+            (non-val)
+            )
+        )
+    )
   )
 
 (define (value-of-statement s env)
@@ -42,8 +62,7 @@
     (print-statement (lst)
                     (begin
                       (display lst)
-                      env)
-                    )
+                      env))
     )
   )
 
@@ -52,28 +71,32 @@
     (function-def-statement (id params body)
                             (value-of-function-def-statement id params body env))
     (if-statement (condition body else-body)
-                  (value-of-if-statement condition body else-body env))
+                  (value-of-if-statement condition body else-body env value-of-statements))
     (for-statement (id iterable body)
-                   (begin
-                     (value-of-for-statement id iterable body env)
-                     env)
+                   (value-of-for-statement id iterable body env)
                    )
     )
   )
 
 (define (value-of-assignment-statement id right-hand env)
-  (let ((new-ref (newref (a-thunk right-hand))))
-    (extend-environment id new-ref env)
+  (let ((prev-dec (apply-environment id env)))
+    (if (null? prev-dec)
+        (let ((new-ref (newref (a-thunk right-hand))))
+          (extend-environment id new-ref env)
+          )
+        (setref! prev-dec (a-thunk right-hand))
+        )
     )
   )
 (define (value-of-return-statement body env)
   (if (null? body)
-      (non-val)
-      (value-of-expression body env)
+      (list 'Return (non-val))
+      (list 'Return (value-of-expression body env))
       )
   )
+
 (define (value-of-global-statement id env)
-  (let ((global-ref (apply-environment id env)))
+  (let ((global-ref (apply-environment id (get-global-environment env))))
     (extend-environment id global-ref env)
     )
   )
@@ -82,19 +105,21 @@
     (extend-environment id new-ref env)
     )
   )
-(define (value-of-if-statement condition body else-body env)
+(define (value-of-if-statement condition body else-body env f)
   (let ((condition-result (value-of-expression condition env)))
     (if (expval->val condition-result)
-        (value-of-statements body env)
-        (value-of-statements else-body env)
+        (f body env)
+        (f else-body env)
         )
     )
   )
 (define (value-of-for-statement id iterable body env)
   (let ((iterable-value (reverse (expval->val (value-of-expression iterable env)))))
-    (begin
-      (value-of-for-body id iterable body env)
-      env)
+        (let ((result (value-of-for-body id iterable-value body env)))
+          (if (eqv? result 'break)
+              env
+              result)
+          )
     )
   )
 (define (value-of-for-body id iterable body env)
@@ -105,8 +130,12 @@
           (cond
             [(eqv? result 'break)
              'break]
+            [(null? result)
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable))) env))]
+            [(eqv? 'Return (first result))
+             result]
             [else
-             (value-of-statements-inside-for body (extend-environment id (newref (first iterable)) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable))) env))]
             )
           )
         )
@@ -116,13 +145,27 @@
   (if (null? statements)
       env
       (let ((to-execute (first statements)))
-        (cases simple-statement to-execute
-          (break-statement ()
-                           'break)
-          (continue-statement ()
-                              env)
-          (else
-           (value-of-statements (rest statements) (value-of-statement to-execute)))
+        (cases statement to-execute
+          (s-statement (s)
+                       (cases simple-statement s
+                         (break-statement ()
+                                          'break)
+                         (continue-statement ()
+                                             env)
+                         (return-statement (e1)
+                                           (value-of-return-statement e1 env))
+                         (else
+                          (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env)))
+                         )
+                       )
+          (c-statement (s)
+                       (cases compound-statement s
+                         (if-statement (condition body else-body)
+                                       (value-of-if-statement condition body else-body env value-of-statements-inside-for))
+                         (else
+                          (value-of-statements-inside-for (rest statements) (value-of-statement to-execute env)))
+                         )
+                       )
           )
         )
       )
@@ -162,21 +205,27 @@
     (simple-disjunct (x)
                      (value-of-conjunction x env))
     (compound-disjunct (x1 x2)
-                       (or (value-of-disjunction x1 env)
-                           (value-of-disjunction x1 env)))))
+                       (let ((val-x1 (value-of-disjunction x1 env))
+                             (val-x2 (value-of-conjunction x2 env)))
+                         (if (expval->val val-x1)
+                             val-x1
+                             val-x2)))))
 
 (define (value-of-conjunction body env)
   (cases conjunct body
     (simple-conjunct (x)
                      (value-of-inversion x env))
     (compound-conjunct (x1 x2)
-                       (and (value-of-conjunction x1 env)
-                            (value-of-conjunction x1 env)))))
+                       (let ((val-x1 (value-of-conjunction x1 env))
+                             (val-x2 (value-of-inversion x2 env)))
+                         (if (not (expval->val val-x1))
+                             val-x1
+                             val-x2)))))
 
 (define (value-of-inversion body env)
   (cases inversion body
     (not-inversion (x)
-                   (not (value-of-inversion x env)))
+                   (bool-val (not (expval->val (value-of-inversion x env)))))
     (comparison-inversion (comp)
                            (value-of-comparison comp env))))
 
@@ -185,19 +234,24 @@
     (simple-comp (x)
                  (value-of-sum x env))
     (compound-comp (x1 x2)
-                   (value-of-comp-op-sum-pairs (value-of-sum x1) x2))))
+                   (value-of-comp-op-sum-pairs (value-of-sum x1 env) x2 env))))
+(define (extract-sum cosp)
+  (cases comp-op-sum-pair cosp
+    (eq-sum (s) s)
+    (lt-sum (s) s)
+    (gt-sum (s) s)))
 
 (define (value-of-comp-op-sum-pairs precursor body env)
   (cond
-    [(null? body) precursor]
-    [else (value-of-comp-op-sum-pairs
-           (value-of-comp-op-sum-pair precursor (car body) env) (cdr body) env)]))
+    [(null? body) (bool-val #t)]
+    [else (let ((result (expval->val (value-of-comp-op-sum-pair precursor (first body) env))))
+             (bool-val (and (expval->val (value-of-comp-op-sum-pairs (value-of-sum (extract-sum (first body)) env) (rest body) env)) result)))]))
 
 (define (value-of-comp-op-sum-pair precursor body env)
   (cases comp-op-sum-pair body
-    (eq-sum (x) (equal? precursor (value-of-sum x env)))
-    (lt-sum (x) (< precursor (value-of-sum x env)))
-    (gt-sum (x) (> precursor (value-of-sum x env)))))
+    (eq-sum (x) (bool-val (equal? (expval->val precursor) (expval->val (value-of-sum x env)))))
+    (lt-sum (x) (bool-val (< (expval->val precursor) (expval->val (value-of-sum x env)))))
+    (gt-sum (x) (bool-val (> (expval->val precursor) (expval->val (value-of-sum x env)))))))
 
 (define (value-of-sum body env)
   (cases sum body
@@ -234,7 +288,7 @@
 (define (value-of-factor body env)
   (cases factor body
     (plus-factor (x) (value-of-factor x env))
-    (minus-factor (x) (- (num-val (expval->val (value-of-factor x env)))))
+    (minus-factor (x) (num-val (- (expval->val (value-of-factor x env)))))
     (simple-factor (x) (value-of-power x env))))
 
 (define (value-of-power body env)
@@ -253,14 +307,13 @@
     (id-atom (x)
              (let ((ref (apply-environment x env)))
                (let ((value (deref ref)))
-               (cases thunk value
-                 (a-thunk (exp1)
-                          (let ((result (value-of-expression exp1 env)))
-                            (setref! ref result)
-                            result)
-                          )
-                 (else
-                  value)))))
+                 (if (thunk? value)
+                     (cases thunk value
+                       (a-thunk (exp1)
+                                (let ((result (value-of-expression exp1 env)))
+                                  (setref! ref result)
+                                  result)))
+                     value))))
   (boolean-atom (x)
                 (bool-val (to-boolean x)))
   (none-atom ()
@@ -285,22 +338,22 @@
   (value-of-expression (list-ref (expval->val (value-of-primary x)) (expval->val (value-of-expression exp1))))
   )
 (define (value-of-empty-primary x env)
-  (let ((val (expval->val (value-of-primary x))))
+  (let ((val (expval->val (value-of-primary x env))))
     (cases proc val
       (procedure (id params body)
-                 (apply-procedure id params body (list) env)
+                 (apply-procedure id params body (list) (add-environment-scope env))
                  )
       )
     )
   )
 (define (apply-procedure id params body args env)
-  (value-of-statements body (extend-environment id
+  (value-of-statements-function body (extend-environment id
                                                 (newref (proc-val (procedure id params body)))
                                                 (extend-env-with-args params args env)))
   )
   
 (define (value-of-argument-primary x args env)
-  (let ((val (expval->val (value-of-primary x))))
+  (let ((val (expval->val (value-of-primary x env))))
     (cases proc val
       (procedure (id params body)
                  (apply-procedure id params body args env)
@@ -310,52 +363,194 @@
   )
 (define (value-of-thunk t env)
   (cases thunk t
-    (a-thunk (exp1)
-             (value-of-expression exp1 env)
-             )
+    (a-thunk
+     (exp1)
+     (value-of-expression exp1 env)
+     )
     )
   )
+
+
+(define (make-num num) (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power
+                  (atom-primary
+                   (number-atom
+                    num)))))))
+
 (define (deref ref)
    (list-ref the-store ref))
+(define (sne num)
+  (disjunction-exp
+   (simple-disjunct
+    (simple-conjunct
+     (comparison-inversion
+      (simple-comp
+       (simple-sum
+        (simple-term
+         (simple-factor
+          (simple-power
+           (atom-primary
+            (number-atom
+             num))))))))))))
+
+(define for-list
+  (disjunction-exp
+   (simple-disjunct
+    (simple-conjunct
+     (comparison-inversion
+      (simple-comp
+       (simple-sum
+        (simple-term
+         (simple-factor
+          (simple-power
+           (atom-primary
+            (list-atom
+             (list
+              (sne 1)
+              (sne 2)
+              (sne 3)
+              (sne 4))))))))))))))
+
 (define test
   (list
-    (s-statement           
-     (assignment-statement
+   (s-statement
+    (assignment-statement
       'a
+      (disjunction-exp
+        (simple-disjunct
+         (simple-conjunct
+          (comparison-inversion
+           (simple-comp
+           (simple-sum
+            (simple-term
+             (plus-factor
+              (simple-factor
+               (simple-power
+                (atom-primary
+                 (number-atom
+                  155))))))))))))))
+   (c-statement
+    (function-def-statement
+     'p1
+     (list)
+     (list
+      (s-statement
+       (global-statement
+        'a
+        )
+       )
+      (c-statement
+       (for-statement
+        'i
+        for-list
+        (list
+         (c-statement
+          (if-statement
+           (disjunction-exp
+            (simple-disjunct
+             (simple-conjunct
+              (comparison-inversion
+               (compound-comp
+                (simple-sum
+                 (simple-term
+                  (simple-factor
+                   (simple-power
+                    (atom-primary
+                   (id-atom
+                    'i))
+                    ))))
+                (list
+                 (eq-sum
+                  (make-num 2))))))))
+           (list
+            (s-statement
+             (assignment-statement
+              'b
+              (disjunction-exp
+               (simple-disjunct
+                (simple-conjunct
+                 (comparison-inversion
+                  (simple-comp
+                   (simple-sum
+                    (simple-term
+                     (plus-factor
+                      (simple-factor
+                       (simple-power
+                        (atom-primary
+                         (number-atom
+                          170))))))))))))))
+            (s-statement
+             (return-statement (sne 77)))
+            (s-statement
+             (print-statement (list 123123))))
+           (list
+          (s-statement
+           (print-statement (list 12)))))))
+        )
+       )
+      )
+     )
+    )
+    (c-statement
+     (if-statement
       (disjunction-exp
        (simple-disjunct
         (simple-conjunct
          (comparison-inversion
-          (simple-comp
+          (compound-comp
            (simple-sum
             (simple-term
              (simple-factor
               (simple-power
-               (atom-primary
-                (number-atom
-                 12)))))))))))))
-    (s-statement
-     (assignment-statement
-      'b
-      (disjunction-exp
-       (simple-disjunct
-        (simple-conjunct
-         (comparison-inversion
-          (simple-comp
-           (addition-sum
-            (simple-sum
-             (simple-term
-              (simple-factor
-               (simple-power
+               (empty-primary
                 (atom-primary
-                 (boolean-atom
-                 'True)
-                 )))))
-            (simple-term
-             (simple-factor
-              (simple-power
-               (atom-primary
-                (number-atom
-                 12)))))))))))))))
+                 (id-atom
+                  'p1)))))))
+              (list
+               (eq-sum
+                (make-num 77))))))))
+         (list
+          (s-statement
+           (print-statement (list 'True))))
+         (list
+          (s-statement
+           (print-statement (list 'False))))))
+   
+               
+    (c-statement
+     (for-statement
+      'i
+      for-list
+      (list
+       (c-statement
+        (if-statement
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (compound-comp
+              (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power
+                  (atom-primary
+                   (id-atom
+                   'a))
+                  ))))
+              (list
+               (eq-sum
+                (make-num 155))))))))
+         (list
+          (s-statement
+           (print-statement (list 123123))))
+         (list
+          (s-statement
+           (print-statement (list 12)))))))
+        )
+       )
+      )
+     )
 (define envtest (value-of-program test))
-(value-of-thunk (second the-store) envtest)
+;;(value-of-thunk (third the-store) envtest)

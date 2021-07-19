@@ -23,7 +23,8 @@
     (list-val (lst) lst)
     (bool-val (bool) bool)
     (num-val (num) num)
-    (non-val '())))
+    (non-val () 'None)
+    (proc-val (p) p)))
 
 (define-datatype proc proc?
   (procedure
@@ -189,11 +190,42 @@
 (define (extend-environment var ref env) (cons (list var ref) env))
 
 (define (apply-environment var env)
-  (if (null? env)
-      (report-unbound-var)
+  (if (or
+       (null? env)
+       (and
+        (null? (rest (first env)))
+        (or (eqv? (first (first env)) '__RUNTIME_SCOPE) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))))
+      '()
       (if (eqv? var (first (first env)))
           (second (first env))
           (apply-environment var (rest env))
+          )
+      )
+  )
+(define (get-global-environment env)
+  (if (null? env)
+      env
+      (if (contains-scope env)
+          (if (and (null? (rest (first env))) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))
+              (rest env)
+              (get-global-environment (rest env))
+              )
+          env
+          )
+      )
+  )
+
+(define (contains-scope env)
+  (if (null? env)
+      #f
+      (if
+       (and
+        (null? (rest (first env)))
+        (or
+         (eqv? (first (first env)) '__RUNTIME_SCOPE)
+         (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)))
+          #t
+          (contains-scope (rest env))
           )
       )
   )
@@ -235,6 +267,21 @@
                         (extend-environment id (newref (a-thunk arg1)) env))
     )
   )
+(define (environment-contains-global-scope env)
+  (if (null? env)
+      #f
+      (if (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)
+          #t
+          (environment-contains-global-scope (rest env))
+          )
+      )
+  )
 
+(define (add-environment-scope env)
+  (if (environment-contains-global-scope env)
+      (cons (list '__RUNTIME_SCOPE) env)
+      (cons (list '__RUNTIME_GLOBAL_SCOPE) env)
+      )
+  )
 (provide (all-defined-out))
 
