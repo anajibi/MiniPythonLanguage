@@ -1,1 +1,8 @@
-print(12, None, True, False, a);
+def fact(n = 1):
+    if n < 1:
+        return 1;
+    else:
+        return n * fact(n - 1);;;
+
+a = fact(5);
+printval(a);

@@ -1,0 +1,44 @@
+(list
+ (s-statement
+  (assignment-statement
+   'a
+   (disjunction-exp
+    (simple-disjunct
+     (simple-conjunct
+      (comparison-inversion
+       (simple-comp
+        (simple-sum
+         (simple-term
+          (simple-factor
+           (simple-power
+            (atom-primary
+             (list-atom
+              (list
+               (disjunction-exp
+                (simple-disjunct
+                 (simple-conjunct
+                  (comparison-inversion
+                   (simple-comp
+                    (simple-sum
+                     (simple-term
+                      (simple-factor
+                       (simple-power (atom-primary (number-atom 1)))))))))))
+               (disjunction-exp
+                (simple-disjunct
+                 (simple-conjunct
+                  (comparison-inversion
+                   (simple-comp
+                    (simple-sum
+                     (simple-term
+                      (simple-factor
+                       (simple-power (atom-primary (number-atom 2)))))))))))
+               (disjunction-exp
+                (simple-disjunct
+                 (simple-conjunct
+                  (comparison-inversion
+                   (simple-comp
+                    (simple-sum
+                     (simple-term
+                      (simple-factor
+                       (simple-power
+                        (atom-primary (number-atom 3))))))))))))))))))))))))))

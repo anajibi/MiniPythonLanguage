@@ -1,1 +1,103 @@
-'()
+(list
+ (c-statement
+  (function-def-statement
+   'fact
+   (list
+    (param-with-default
+     'n
+     (disjunction-exp
+      (simple-disjunct
+       (simple-conjunct
+        (comparison-inversion
+         (simple-comp
+          (simple-sum
+           (simple-term
+            (simple-factor
+             (simple-power (atom-primary (number-atom 1)))))))))))))
+   (list
+    (c-statement
+     (if-statement
+      (disjunction-exp
+       (simple-disjunct
+        (simple-conjunct
+         (comparison-inversion
+          (compound-comp
+           (simple-sum
+            (simple-term
+             (simple-factor (simple-power (atom-primary (id-atom 'n))))))
+           (list
+            (lt-sum
+             (simple-sum
+              (simple-term
+               (simple-factor
+                (simple-power (atom-primary (number-atom 1)))))))))))))
+      (list
+       (s-statement
+        (return-statement
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (simple-comp
+              (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power (atom-primary (number-atom 1))))))))))))))
+      (list
+       (s-statement
+        (return-statement
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (simple-comp
+              (simple-sum
+               (multiplication-factor
+                (simple-term
+                 (simple-factor (simple-power (atom-primary (id-atom 'n)))))
+                (simple-factor
+                 (simple-power
+                  (argument-primary
+                   (atom-primary (id-atom 'fact))
+                   (list
+                    (disjunction-exp
+                     (simple-disjunct
+                      (simple-conjunct
+                       (comparison-inversion
+                        (simple-comp
+                         (subtraction-sum
+                          (simple-sum
+                           (simple-term
+                            (simple-factor
+                             (simple-power (atom-primary (id-atom 'n))))))
+                          (simple-term
+                           (simple-factor
+                            (simple-power
+                             (atom-primary
+                              (number-atom 1))))))))))))))))))))))))))))))
+ (s-statement
+  (assignment-statement
+   'a
+   (disjunction-exp
+    (simple-disjunct
+     (simple-conjunct
+      (comparison-inversion
+       (simple-comp
+        (simple-sum
+         (simple-term
+          (simple-factor
+           (simple-power
+            (argument-primary
+             (atom-primary (id-atom 'fact))
+             (list
+              (disjunction-exp
+               (simple-disjunct
+                (simple-conjunct
+                 (comparison-inversion
+                  (simple-comp
+                   (simple-sum
+                    (simple-term
+                     (simple-factor
+                      (simple-power
+                       (atom-primary (number-atom 5))))))))))))))))))))))))
+ (s-statement (printval-statement (list (id-atom 'a)))))

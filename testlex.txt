@@ -1,7 +1,44 @@
 (list
- 'evaluate
+ 'def
+ (token 'ID "fact")
  'opening-paranthesis
- (token 'FILE-ADDRESS "'./test.plpy'")
+ (token 'ID "n")
+ 'assignto
+ (token 'NUM 1)
+ 'closing-paranthesis
+ 'colon
+ 'IF
+ (token 'ID "n")
+ 'lessthan
+ (token 'NUM 1)
+ 'colon
+ 'return
+ (token 'NUM 1)
+ 'semicolon
+ 'ELSE
+ 'colon
+ 'return
+ (token 'ID "n")
+ 'multiply
+ (token 'ID "fact")
+ 'opening-paranthesis
+ (token 'ID "n")
+ 'minus
+ (token 'NUM 1)
+ 'closing-paranthesis
+ 'semicolon
+ 'semicolon
+ 'semicolon
+ (token 'ID "a")
+ 'assignto
+ (token 'ID "fact")
+ 'opening-paranthesis
+ (token 'NUM 5)
+ 'closing-paranthesis
+ 'semicolon
+ 'printval
+ 'opening-paranthesis
+ (token 'ID "a")
  'closing-paranthesis
  'semicolon
  'EOF)

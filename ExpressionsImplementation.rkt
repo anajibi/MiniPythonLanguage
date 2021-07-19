@@ -67,7 +67,7 @@
                        env))
     (printval-statement (lst)
                      (begin
-                       (value-of-atom (display lst))
+                       (display (map (lambda (x) (value-of-atom x env)) lst))
                        env))
     (evaluate-statement (address)
                         (let*
@@ -568,6 +568,6 @@
 (define addr "'./test.pypl'")
 (define test1 (list (s-statement (evaluate-statement (substring addr 1 (- (string-length addr) 1))))))
 
-(define envtest (value-of-program test1))
+;(define envtest (value-of-program test1))
 ;;(value-of-thunk (third the-store) envtest)
 (provide value-of-program)

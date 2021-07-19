@@ -27,6 +27,7 @@
                           ((break) (break-statement))
                           ((continue) (continue-statement))
                           ((Print-stmt) $1)
+                          ((Printval-stmt) $1)
                           ((Evaluate-stmt) $1))
              (Compound-stmt ((Function-def) $1)
                             ((If-stmt) $1)
@@ -101,8 +102,11 @@
                           ((Expression) (list $1)))
              (Print-stmt ((print opening-paranthesis Atom-list closing-paranthesis)
                           (print-statement $3)))
-             (Evaluate-stmt ((evaluate opening-paranthesis double-quote FILE-ADDRESS double-quote closing-paranthesis)
-                        12))
+             (Printval-stmt ((printval opening-paranthesis Atom-list closing-paranthesis)
+                          (printval-statement $3)))
+             (Evaluate-stmt
+              ((evaluate opening-paranthesis double-quote FILE-ADDRESS double-quote closing-paranthesis)
+               (evaluate-statement (substring $4 1 (- (string-length $4) 1)))))
              )))
 
 ;test

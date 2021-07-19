@@ -20,7 +20,7 @@
             ("(" (token-opening-paranthesis))
             (")" (token-closing-paranthesis))
             ("[" (token-opening-bracket))
-            ("]" (token-opening-bracket))
+            ("]" (token-closing-bracket))
             (":" (token-colon))
             ("," (token-comma))
             ((:or "\"" "'") (token-double-quote))
@@ -30,6 +30,7 @@
             ("return" (token-return))
             ("global" (token-global))
             ("print" (token-print))
+            ("printval" (token-printval))
             ("evaluate" (token-evaluate))
             ("def" (token-def))
             ("if" (token-IF))
@@ -88,6 +89,7 @@
                         return
                         global
                         print
+                        printval
                         evaluate
                         def
                         IF
@@ -103,8 +105,8 @@
 
 
 ;test
-(define test-program (open-input-string "evaluate('./test.plpy');"))
-;(define test-program (open-input-file "./test.plpy"))
+;(define test-program (open-input-string "evaluate('./test.plpy');"))
+(define test-program (open-input-file "./test.plpy"))
 (define lex-this (lambda (lexer input) (lambda () (lexer input))))
 (define my-lexer (lex-this simple-python-lexer test-program))
 (define (lex-all my-lexer)
