@@ -162,8 +162,11 @@
     (simple-disjunct (x)
                      (value-of-conjunction x env))
     (compound-disjunct (x1 x2)
-                       (or (value-of-disjunction x1 env)
-                           (value-of-disjunction x1 env)))))
+                       (let ((val-x1 (value-of-disjunction x1 env))
+                             (val-x2 (value-of-conjunction x2 env)))
+                         (if (expval->val val-x1)
+                             val-x1
+                             val-x2)))))
 
 (define (value-of-conjunction body env)
   (cases conjunct body
@@ -234,7 +237,7 @@
 (define (value-of-factor body env)
   (cases factor body
     (plus-factor (x) (value-of-factor x env))
-    (minus-factor (x) (- (num-val (expval->val (value-of-factor x env)))))
+    (minus-factor (x) (num-val (- (expval->val (value-of-factor x env)))))
     (simple-factor (x) (value-of-power x env))))
 
 (define (value-of-power body env)
@@ -323,6 +326,33 @@
      (assignment-statement
       'a
       (disjunction-exp
+       (compound-disjunct
+        (simple-disjunct
+         (simple-conjunct
+          (comparison-inversion
+           (simple-comp
+           (simple-sum
+            (simple-term
+             (plus-factor
+              (simple-factor
+               (simple-power
+                (atom-primary
+                 (boolean-atom
+                  'False)))))))))))
+        (simple-conjunct
+          (comparison-inversion
+           (simple-comp
+           (simple-sum
+            (simple-term
+             (plus-factor
+              (simple-factor
+               (simple-power
+                (atom-primary
+                 (number-atom
+                  32434))))))))))))))
+    (c-statement
+     (if-statement
+      (disjunction-exp
        (simple-disjunct
         (simple-conjunct
          (comparison-inversion
@@ -332,30 +362,55 @@
              (simple-factor
               (simple-power
                (atom-primary
-                (number-atom
-                 12)))))))))))))
-    (s-statement
-     (assignment-statement
-      'b
-      (disjunction-exp
-       (simple-disjunct
-        (simple-conjunct
-         (comparison-inversion
-          (simple-comp
-           (addition-sum
-            (simple-sum
-             (simple-term
-              (simple-factor
-               (simple-power
-                (atom-primary
-                 (boolean-atom
-                 'True)
-                 )))))
-            (simple-term
-             (simple-factor
-              (simple-power
-               (atom-primary
-                (number-atom
-                 12)))))))))))))))
+                (boolean-atom
+                 'False)))))))))))
+      (list
+       (s-statement           
+        (assignment-statement
+         'b
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (simple-comp
+              (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power
+                  (atom-primary
+                   (number-atom
+                    12222)))))))))))))
+       (s-statement           
+        (assignment-statement
+         'c
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (simple-comp
+              (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power
+                  (atom-primary
+                   (number-atom
+                    9999))))))))))))))
+      (list
+       (s-statement           
+        (assignment-statement
+         'b
+         (disjunction-exp
+          (simple-disjunct
+           (simple-conjunct
+            (comparison-inversion
+             (simple-comp
+              (simple-sum
+               (simple-term
+                (simple-factor
+                 (simple-power
+                  (atom-primary
+                   (number-atom
+                    12121111111112))))))))))))))
+      ))))
 (define envtest (value-of-program test))
-(value-of-thunk (second the-store) envtest)
+(value-of-thunk (first the-store) envtest)
