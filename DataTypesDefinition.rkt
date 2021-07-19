@@ -3,6 +3,7 @@
 (define-datatype thunk thunk?
   (a-thunk
    (expression expr?)
+   (environment list?)
    )
   )
 
@@ -248,29 +249,9 @@
 (define (setref! ref new-val)
   (set! the-store (list-set the-store ref new-val))
   )
-(define (extend-env-with-args params args env)
-  (if (null? args)
-      (extend-env-only-params params env)
-      (extend-env-with-args (rest params) (rest args)
-                            (extend-env-with-arg (first params) (first args) env))
-      )
-  )
-(define (extend-env-only-params params env)
-  (if (null? params)
-      env
-      (cases param (first params)
-        (param-with-default (id exp1)
-                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1)) env)))
-        )
-      )
-  )
 
-(define (extend-env-with-arg param1 arg1 env)
-  (cases param param1
-    (param-with-default (id exp1)
-                        (extend-environment id (newref (a-thunk arg1)) env))
-    )
-  )
+
+
 (define (environment-contains-global-scope env)
   (if (null? env)
       #f

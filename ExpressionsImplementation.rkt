@@ -4,6 +4,31 @@
 (require "./lexer.rkt")
 (require "./parser.rkt")
 
+
+(define (extend-env-with-args params args env prev-env)
+  (if (null? args)
+      (extend-env-only-params params env)
+      (extend-env-with-args (rest params) (rest args)
+                            (extend-env-with-arg (first params) (first args) env prev-env)
+                            prev-env)
+      )
+  )
+(define (extend-env-with-arg param1 arg1 env prev-env)
+  (cases param param1
+    (param-with-default (id exp1)
+                        (extend-environment id (newref (a-thunk arg1 prev-env)) env))
+    )
+  )
+(define (extend-env-only-params params env)
+  (if (null? params)
+      env
+      (cases param (first params)
+        (param-with-default (id exp1)
+                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1)) env)))
+        )
+      )
+  )
+
 (define (value-of-program program)
   (begin
     (define env (empty-environment))
@@ -94,10 +119,10 @@
 (define (value-of-assignment-statement id right-hand env)
   (let ((prev-dec (apply-environment id env)))
     (if (null? prev-dec)
-        (let ((new-ref (newref (a-thunk right-hand))))
+        (let ((new-ref (newref (a-thunk right-hand env))))
           (extend-environment id new-ref env)
           )
-        (setref! prev-dec (a-thunk right-hand))
+        (setref! prev-dec (a-thunk right-hand env))
         )
     )
   )
@@ -270,12 +295,12 @@
   (cases sum body
     (addition-sum (left-hand right-hand) (add-or (value-of-sum left-hand env) right-hand env))
     (subtraction-sum (left-hand right-hand)
-                     (num-val (- (expval->val left-hand) (expval->val right-hand))))
+                     (num-val (- (expval->val (value-of-sum left-hand env)) (expval->val (value-of-term right-hand env)))))
     (simple-sum (x) (value-of-term x env))))
 
 (define (add-or left-hand right-hand env)
   (cases expval left-hand
-    (num-val (num) (num-val (+ (expval->val left-hand) num)))
+    (num-val (num) (num-val (+ (expval->val right-hand) num)))
     (bool-val (bool) (if (eqv? #t bool)
                          (bool-val #t)
                          (value-of-term right-hand env)))
@@ -322,8 +347,8 @@
                (let ((value (deref ref)))
                  (if (thunk? value)
                      (cases thunk value
-                       (a-thunk (exp1)
-                                (let ((result (value-of-expression exp1 env)))
+                       (a-thunk (exp1 prev-env)
+                                (let ((result (value-of-expression exp1 prev-env)))
                                   (setref! ref result)
                                   result)))
                      value))))
@@ -354,31 +379,30 @@
   (let ((val (expval->val (value-of-primary x env))))
     (cases proc val
       (procedure (id params body)
-                 (apply-procedure id params body (list) (add-environment-scope env))
+                 (apply-procedure id params body (list) (add-environment-scope env) env)
                  )
       )
     )
   )
-(define (apply-procedure id params body args env)
+(define (apply-procedure id params body args env prev-env)
   (value-of-statements-function body (extend-environment id
                                                 (newref (proc-val (procedure id params body)))
-                                                (extend-env-with-args params args env)))
+                                                (extend-env-with-args params args env prev-env)))
   )
   
 (define (value-of-argument-primary x args env)
   (let ((val (expval->val (value-of-primary x env))))
     (cases proc val
       (procedure (id params body)
-                 (apply-procedure id params body args env)
+                 (apply-procedure id params body args (add-environment-scope env) env)
                  )
       )
     )
   )
-(define (value-of-thunk t env)
+(define (value-of-thunk t)
   (cases thunk t
-    (a-thunk
-     (exp1)
-     (value-of-expression exp1 env)
+    (a-thunk (exp1 prev-env)
+     (value-of-expression exp1 prev-env)
      )
     )
   )
@@ -565,6 +589,7 @@
        )
       )
      )
+
 (define addr "'./test.pypl'")
 (define test1 (list (s-statement (evaluate-statement (substring addr 1 (- (string-length addr) 1))))))
 
