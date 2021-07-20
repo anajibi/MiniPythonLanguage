@@ -102,7 +102,7 @@
                           ((Expression) (list $1)))
              (Print-stmt ((print opening-paranthesis Atom-list closing-paranthesis)
                           (print-statement $3)))
-             (Printval-stmt ((printval opening-paranthesis Atom-list closing-paranthesis)
+             (Printval-stmt ((printval opening-paranthesis Expressions closing-paranthesis)
                           (printval-statement $3)))
              (Evaluate-stmt
               ((evaluate opening-paranthesis double-quote FILE-ADDRESS double-quote closing-paranthesis)

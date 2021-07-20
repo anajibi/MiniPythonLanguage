@@ -173,7 +173,7 @@
                        env))
     (printval-statement (lst)
                      (begin
-                       (display (map (lambda (x) (value-of-atom x env)) lst))
+                       (display (map (lambda (x) (value-of-expression x env)) lst))
                        env))
     (evaluate-statement (address)
                         (let*
@@ -404,7 +404,8 @@
     (num-val (num) (num-val (+ (expval->val right-hand) num)))
     (bool-val (bool) (if (eqv? #t bool)
                          (bool-val #t)
-                         (value-of-term right-hand env)))
+                          right-hand ))
+    (list-val (lst) (list-val (append lst (expval->val right-hand ))))
     (else (non-val))))
 
 (define (value-of-term body env)

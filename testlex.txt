@@ -2,20 +2,12 @@
  'def
  (token 'ID "f")
  'opening-paranthesis
- (token 'ID "a")
- 'assignto
- 'opening-bracket
- (token 'NUM 1)
- 'comma
- (token 'NUM 2)
- 'comma
- (token 'NUM 3)
- 'closing-bracket
  'closing-paranthesis
  'colon
  (token 'ID "a")
  'assignto
- (token 'NUM 0)
+ 'opening-bracket
+ 'closing-bracket
  'semicolon
  'FOR
  (token 'ID "i")
@@ -34,24 +26,28 @@
  'assignto
  (token 'ID "a")
  'plus
+ 'opening-bracket
  (token 'ID "i")
- 'semicolon
+ 'closing-bracket
  'semicolon
  'return
  (token 'ID "a")
  'semicolon
- 'pass
  'semicolon
  'semicolon
- (token 'ID "b")
- 'assignto
+ 'FOR
+ (token 'ID "i")
+ 'IN
+ 'opening-bracket
+ (token 'NUM 0)
+ 'closing-bracket
+ 'colon
+ 'printval
+ 'opening-paranthesis
  (token 'ID "f")
  'opening-paranthesis
  'closing-paranthesis
- 'semicolon
- 'printval
- 'opening-paranthesis
- (token 'ID "b")
  'closing-paranthesis
+ 'semicolon
  'semicolon
  'EOF)
