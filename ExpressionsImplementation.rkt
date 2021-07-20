@@ -4,6 +4,87 @@
 (require "./lexer.rkt")
 (require "./parser.rkt")
 
+(define (empty-environment) (list))
+
+(define (extend-environment var ref env) (cons (list var ref) env))
+
+(define (apply-environment var env)
+  (if (or
+       (null? env)
+       (and
+        (null? (rest (first env)))
+        (or (eqv? (first (first env)) '__RUNTIME_SCOPE) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))))
+      '()
+      (if (eqv? var (first (first env)))
+          (second (first env))
+          (apply-environment var (rest env))
+          )
+      )
+  )
+(define (get-global-environment env)
+  (if (null? env)
+      env
+      (if (contains-scope env)
+          (if (and (null? (rest (first env))) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))
+              (rest env)
+              (get-global-environment (rest env))
+              )
+          env
+          )
+      )
+  )
+
+(define (contains-scope env)
+  (if (null? env)
+      #f
+      (if
+       (and
+        (null? (rest (first env)))
+        (or
+         (eqv? (first (first env)) '__RUNTIME_SCOPE)
+         (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)))
+          #t
+          (contains-scope (rest env))
+          )
+      )
+  )
+(define the-store (list))
+
+(define (refrence? v) (integer? v))
+
+(define (newref val)
+  (let ((next-ref (length the-store)))
+    (set! the-store (append the-store (list val)))
+    next-ref)
+  )
+
+
+
+(define (setref! ref new-val)
+  (set! the-store (list-set the-store ref new-val))
+  )
+
+
+
+(define (environment-contains-global-scope env)
+  (if (null? env)
+      #f
+      (if (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)
+          #t
+          (environment-contains-global-scope (rest env))
+          )
+      )
+  )
+
+(define (add-environment-scope env)
+  (if (environment-contains-global-scope env)
+      (cons (list '__RUNTIME_SCOPE) env)
+      (cons (list '__RUNTIME_GLOBAL_SCOPE) env)
+      )
+  )
+
+
+
 
 (define (extend-env-with-args params args env prev-env)
   (if (null? args)
@@ -16,7 +97,7 @@
 (define (extend-env-with-arg param1 arg1 env prev-env)
   (cases param param1
     (param-with-default (id exp1)
-                        (extend-environment id (newref (a-thunk arg1 prev-env)) env))
+                        (extend-environment id (newref (a-thunk arg1 prev-env the-store)) env))
     )
   )
 (define (extend-env-only-params params env prev-env)
@@ -24,7 +105,7 @@
       env
       (cases param (first params)
         (param-with-default (id exp1)
-                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1 prev-env)) env) prev-env))
+                            (extend-env-only-params (rest params) (extend-environment id (newref (a-thunk exp1 prev-env the-store)) env) prev-env))
         )
       )
   )
@@ -119,11 +200,11 @@
 (define (value-of-assignment-statement id right-hand env)
   (let ((prev-dec (apply-environment id env)))
     (if (null? prev-dec)
-        (let ((new-ref (newref (a-thunk right-hand env))))
+        (let ((new-ref (newref (a-thunk right-hand env the-store))))
           (extend-environment id new-ref env)
           )
         (begin
-          (setref! prev-dec (a-thunk right-hand env))
+          (setref! prev-dec (a-thunk right-hand env the-store))
           env)
         )
     )
@@ -171,13 +252,13 @@
             [(eqv? result 'break)
              'break]
             [(eqv? result 'continue)
-             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env the-store)) env))]
             [(null? result)
-             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env the-store)) env))]
             [(eqv? 'Return (first result))
              result]
             [else
-             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env)) env))]
+             (value-of-statements-inside-for body (extend-environment id (newref (a-thunk (first iterable) env the-store)) env))]
             )
           )
         )
@@ -367,10 +448,14 @@
                (let ((value (deref ref)))
                  (if (thunk? value)
                      (cases thunk value
-                       (a-thunk (exp1 prev-env)
-                                (let ((result (value-of-expression exp1 prev-env)))
-                                  (setref! ref result)
-                                  result)))
+                       (a-thunk (exp1 prev-env saved-store)
+                                (let ((curr-store the-store))
+                                  (set! the-store saved-store)
+                                  (let ((result (value-of-expression exp1 prev-env)))
+                                    (begin
+                                      (set! the-store curr-store)
+                                      result)
+                                    ))))
                      value))))
   (boolean-atom (x)
                 (bool-val (to-boolean x)))
@@ -421,9 +506,16 @@
   )
 (define (value-of-thunk t)
   (cases thunk t
-    (a-thunk (exp1 prev-env)
-     (value-of-expression exp1 prev-env)
-     )
+    (a-thunk (exp1 prev-env saved-store)
+             (let ((curr-store the-store))
+               (set! the-store saved-store)
+               (let ((result (value-of-expression exp1 prev-env)))
+                 (begin
+                   (set! the-store curr-store)
+                   result)
+                 )
+               )          
+             )
     )
   )
 

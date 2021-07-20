@@ -4,6 +4,7 @@
   (a-thunk
    (expression expr?)
    (environment list?)
+   (saved-store list?)
    )
   )
 
@@ -190,83 +191,6 @@
 
 (define (report-unbound-var) (display "unbound variable"))
 
-(define (empty-environment) (list))
 
-(define (extend-environment var ref env) (cons (list var ref) env))
-
-(define (apply-environment var env)
-  (if (or
-       (null? env)
-       (and
-        (null? (rest (first env)))
-        (or (eqv? (first (first env)) '__RUNTIME_SCOPE) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))))
-      '()
-      (if (eqv? var (first (first env)))
-          (second (first env))
-          (apply-environment var (rest env))
-          )
-      )
-  )
-(define (get-global-environment env)
-  (if (null? env)
-      env
-      (if (contains-scope env)
-          (if (and (null? (rest (first env))) (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE))
-              (rest env)
-              (get-global-environment (rest env))
-              )
-          env
-          )
-      )
-  )
-
-(define (contains-scope env)
-  (if (null? env)
-      #f
-      (if
-       (and
-        (null? (rest (first env)))
-        (or
-         (eqv? (first (first env)) '__RUNTIME_SCOPE)
-         (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)))
-          #t
-          (contains-scope (rest env))
-          )
-      )
-  )
-(define the-store (list))
-
-(define (refrence? v) (integer? v))
-
-(define (newref val)
-  (let ((next-ref (length the-store)))
-    (set! the-store (append the-store (list val)))
-    next-ref)
-  )
-
-
-
-(define (setref! ref new-val)
-  (set! the-store (list-set the-store ref new-val))
-  )
-
-
-
-(define (environment-contains-global-scope env)
-  (if (null? env)
-      #f
-      (if (eqv? (first (first env)) '__RUNTIME_GLOBAL_SCOPE)
-          #t
-          (environment-contains-global-scope (rest env))
-          )
-      )
-  )
-
-(define (add-environment-scope env)
-  (if (environment-contains-global-scope env)
-      (cons (list '__RUNTIME_SCOPE) env)
-      (cons (list '__RUNTIME_GLOBAL_SCOPE) env)
-      )
-  )
 (provide (all-defined-out))
 

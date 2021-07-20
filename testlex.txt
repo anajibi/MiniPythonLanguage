@@ -1,29 +1,21 @@
 (list
  'def
- (token 'ID "fact")
- 'opening-paranthesis
- (token 'ID "n")
- 'assignto
- (token 'NUM 1)
- 'closing-paranthesis
- 'colon
- 'global
  (token 'ID "f")
- 'semicolon
- 'global
- (token 'ID "b")
- 'semicolon
- (token 'ID "b")
+ 'opening-paranthesis
+ (token 'ID "a")
  'assignto
  'opening-bracket
- (token 'NUM 7)
+ (token 'NUM 1)
  'comma
- (token 'NUM 8)
+ (token 'NUM 2)
  'comma
- (token 'NUM 9)
- 'comma
- (token 'NUM 10)
+ (token 'NUM 3)
  'closing-bracket
+ 'closing-paranthesis
+ 'colon
+ (token 'ID "a")
+ 'assignto
+ (token 'NUM 0)
  'semicolon
  'FOR
  (token 'ID "i")
@@ -36,104 +28,30 @@
  (token 'NUM 3)
  'comma
  (token 'NUM 4)
- 'comma
- (token 'NUM 5)
- 'comma
- (token 'NUM 6)
- 'comma
- (token 'NUM 7)
  'closing-bracket
  'colon
- 'IF
+ (token 'ID "a")
+ 'assignto
+ (token 'ID "a")
+ 'plus
  (token 'ID "i")
- 'equals
- (token 'NUM 4)
- 'colon
- 'continue
  'semicolon
- 'ELSE
- 'colon
+ 'semicolon
+ 'return
+ (token 'ID "a")
+ 'semicolon
  'pass
  'semicolon
  'semicolon
- (token 'ID "temp")
+ (token 'ID "b")
  'assignto
- (token 'ID "n")
- 'multiply
- (token 'ID "i")
- 'semicolon
- 'printval
- 'opening-paranthesis
- (token 'ID "temp")
- 'closing-paranthesis
- 'semicolon
- 'continue
- 'semicolon
- (token 'ID "n")
- 'assignto
- (token 'ID "temp")
- 'semicolon
- 'semicolon
- 'return
- (token 'ID "n")
- 'semicolon
- 'semicolon
- 'def
  (token 'ID "f")
  'opening-paranthesis
  'closing-paranthesis
- 'colon
- 'IF
- 'NOT
- (token 'NUM 12)
- 'lessthan
- (token 'NUM 13)
- 'lessthan
- (token 'NUM 14)
- 'colon
- 'return
- (token 'NUM 0)
- 'AND
- (token 'NUM 12)
- 'semicolon
- 'ELSE
- 'colon
- 'return
- (token 'NUM 8)
- 'semicolon
- 'semicolon
- 'semicolon
- (token 'ID "b")
- 'assignto
- 'opening-bracket
- (token 'NUM 1)
- 'comma
- (token 'NUM 2)
- 'comma
- (token 'NUM 3)
- 'closing-bracket
- 'semicolon
- (token 'ID "a")
- 'assignto
- (token 'ID "fact")
- 'opening-paranthesis
- 'closing-paranthesis
  'semicolon
  'printval
  'opening-paranthesis
- (token 'ID "a")
- 'closing-paranthesis
- 'semicolon
- (token 'ID "c")
- 'assignto
  (token 'ID "b")
- 'opening-bracket
- (token 'NUM 2)
- 'closing-bracket
- 'semicolon
- 'printval
- 'opening-paranthesis
- (token 'ID "c")
  'closing-paranthesis
  'semicolon
  'EOF)

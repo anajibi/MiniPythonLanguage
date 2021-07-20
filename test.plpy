@@ -1,24 +1,11 @@
+def f(a = [1, 2, 3]):
+    a = 0;
+    for i in [1,2,3,4]:
+        a = a + i;;
+    return a;
+    pass;
+;
 
-def fact(n = 1):
-    global f;
-    global b;
-    b = [7,8,9,10];
-    for i in [1, 2,3,4,5,6,7]:
-        if i == 4:
-            continue;
-        else:
-            pass;;
-        temp = n * i;
-        printval(temp);
-        n = temp;;
-    return n;;
-def f():
-    if  not 12 < 13 < 14:
-        return 0 and 12;
-    else:
-        return 8;;;
-b = [1,2,3];
-a = fact();
-printval(a);
-c = b[2];
-printval(c);
+b = f();
+
+printval(b);
